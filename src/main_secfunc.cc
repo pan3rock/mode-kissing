@@ -43,6 +43,8 @@ int main(int argc, char const *argv[]) {
   app.add_option("-c,--config", file_config, "toml-type configure file");
   bool sh = false;
   app.add_flag("--sh", sh, "whether to compute Love waves");
+  int ilayer = -1;
+  app.add_option("-i,--ilayer", ilayer, "index of layers");
   std::string file_model = "";
   app.add_option("--model", file_model, "filename of model");
   std::string file_out = "secfunc.h5";
@@ -61,27 +63,34 @@ int main(int argc, char const *argv[]) {
   SecularFunction sf(model, sh);
 
   double cmin = model.col(3).minCoeff() * 0.8;
+  cmin = toml::find_or<double>(conf_secfunc, "cmin", cmin);
   double cmax = model.col(3).maxCoeff();
+  cmax = toml::find_or<double>(conf_secfunc, "cmax", cmax);
   ArrayXd c = ArrayXd::LinSpaced(nc, cmin, cmax);
 
   ArrayXd sfunc(nc);
   for (int i_c = 0; i_c < nc; ++i_c) {
     Timer::begin("sfunc");
-    sfunc(i_c) = sf.evaluate(freq, c(i_c));
+    sfunc(i_c) = sf.evaluate(freq, c(i_c), ilayer);
     Timer::end("sfunc");
   }
   std::cout << Timer::summery() << std::endl;
 
   const int mode_max = 1000;
   Dispersion disp(model, sh);
-  ArrayXd roots = disp.search(freq, mode_max);
   auto samples = disp.get_samples(freq);
+  auto roots = disp.search(freq, mode_max, samples);
+  ArrayXd N(samples.size());
+  for (size_t i = 0; i < samples.size(); ++i) {
+    N(i) = disp.approx(freq, samples[i]);
+  }
 
   H5Easy::File fout(file_out, H5Easy::File::Overwrite);
   H5Easy::dump(fout, "f", freq);
   H5Easy::dump(fout, "c", c);
   H5Easy::dump(fout, "sfunc", sfunc);
   H5Easy::dump(fout, "samples", samples);
+  H5Easy::dump(fout, "N", N);
   H5Easy::dump(fout, "roots", roots);
 
   return 0;

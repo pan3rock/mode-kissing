@@ -64,6 +64,11 @@ Dispersion::Dispersion(const Eigen::Ref<const Eigen::ArrayXXd> model, bool sh)
   vs_max_ = vs_.maxCoeff();
   vs_hf_ = vs_(nl_ - 1);
   rayv_ = evaluate_rayleigh_velocity();
+
+  for (int i = 1; i < nl_; ++i) {
+    if (vs_(i) < vs_(i - 1) && vs_(i) < vs_(i + 1))
+      ilvl_.push_back(i);
+  }
 }
 
 Dispersion::~Dispersion() = default;
@@ -103,8 +108,6 @@ double Dispersion::approx(double f, double c) {
 
 std::vector<double> Dispersion::get_samples(double f) {
   std::vector<double> samples;
-  // samples.push_back(vs_min_ - ctol_ * 100);
-  // samples.push_back(vs_max_ + ctol_ * 100);
 
   double cmin;
   if (sh_) {
@@ -116,17 +119,23 @@ std::vector<double> Dispersion::get_samples(double f) {
   pred.push_back(cmin - ctol_ * 100);
 
   int nmax = static_cast<int>(std::floor(approx(f, vs_hf_))) + 1;
-  for (int i = 0; i < nmax; ++i) {
-    double n = static_cast<double>(i);
-    auto func = [&](double c) -> double { return approx(f, c) - n; };
-    if (func(cmin) * func(vs_max_) < 0) {
-      double root = toms748(func, cmin, vs_max_, nullptr, ctol_ * 100,
-                            defaultRelativeTolerance, defaultMaximumIterations,
-                            defaultInterpolationsPerIteration);
-      pred.push_back(root);
-      cmin = root;
+  double dc = (vs_hf_ - vs_min_) / nmax;
+  double c1 = vs_min_;
+  double e1 = approx(f, c1);
+  while (c1 < vs_max_) {
+    double c2 = c1 + dc;
+    double e2 = approx(f, c2);
+    while (abs(e2 - e1) > ednn_) {
+      c2 = c1 + (c2 - c1) * 0.618;
+      e2 = approx(f, c2);
+    }
+    c1 = c2;
+    e1 = e2;
+    if (c2 < vs_max_) {
+      pred.push_back(c2);
     }
   }
+
   pred.push_back(vs_max_ + ctol_ * 100);
   std::sort(pred.begin(), pred.end());
   for (int i = 0; i < nfine_; ++i) {
@@ -152,20 +161,38 @@ std::vector<double> Dispersion::get_samples(double f) {
 }
 
 double Dispersion::search_mode(double f, int mode) {
-  ArrayXd cs = search(f, mode + 1);
-  if (cs.rows() < mode + 1) {
+  auto samples = get_samples(f);
+  std::vector<double> cs = search(f, mode + 1, samples, -1);
+  if (int(cs.size()) < mode + 1) {
     return std::numeric_limits<double>::quiet_NaN();
   } else {
     return cs[mode];
   }
 }
 
-Eigen::ArrayXd Dispersion::search(double f, int num_mode) {
+std::vector<double> Dispersion::search_pred(double f, int num_mode) {
+  const int MMAX = 10000;
+  auto samples = get_samples(f);
+  for (int ilvl : ilvl_) {
+    auto c_find = search(f, MMAX, samples, ilvl);
+    for (auto c : c_find) {
+      samples.push_back(c - ctol_);
+      samples.push_back(c);
+      samples.push_back(c + ctol_);
+    }
+  }
+  std::sort(samples.begin(), samples.end());
+  std::vector<double> cs = search(f, num_mode, samples, -1);
+  return cs;
+}
+
+std::vector<double> Dispersion::search(double f, int num_mode,
+                                       const std::vector<double> &samples,
+                                       int ilvl) {
   std::function<double(double)> func = [&](double c) {
-    return sf_->evaluate(f, c);
+    return sf_->evaluate(f, c, ilvl);
   };
 
-  auto samples = get_samples(f);
   double c_prev = samples[0], c_curr;
   double f_prev = func(c_prev), f_curr;
   std::vector<double> find;
@@ -193,11 +220,10 @@ Eigen::ArrayXd Dispersion::search(double f, int num_mode) {
   }
 
   std::sort(find.begin(), find.end());
-  ArrayXd ret = Map<ArrayXd, Unaligned>(find.data(), find.size());
-
-  if (ret.size() > num_mode) {
-    return ret.head(num_mode);
+  if (int(find.size()) > num_mode) {
+    std::vector<double> s(find.data(), find.data() + num_mode);
+    return s;
   } else {
-    return ret;
+    return find;
   }
 }

@@ -43,8 +43,6 @@ int main(int argc, char const *argv[]) {
   app.add_option("-m,--mode", mode_max, "maximum mode up to");
   bool sh = false;
   app.add_flag("--sh", sh, "whether to compute Love waves");
-  bool atten = false;
-  app.add_flag("--atten", atten, "for viscoelastic model (inaccurate)");
   std::string file_model = "";
   app.add_option("--model", file_model, "filename of model");
   std::string file_out = "disp.txt";
@@ -67,9 +65,12 @@ int main(int argc, char const *argv[]) {
   const auto nf = toml::find<int>(dispersion, "nf");
   ArrayXd freqs = ArrayXd::LinSpaced(nf, fmin, fmax);
   for (int i = 0; i < freqs.size(); ++i) {
-    ArrayXd c = disp.search(freqs(i), mode_max + 1);
-    for (int m = 0; m < c.rows(); ++m) {
-      fmt::print(out, "{:15.5f}{:15.7f}{:15d}\n", freqs(i), c(m), m);
+    auto samples = disp.get_samples(freqs[i]);
+    // auto c = disp.search(freqs(i), mode_max + 1, samples);
+    // auto c = disp.search(freqs(i), mode_max + 1, samples, 2);
+    auto c = disp.search_pred(freqs(i), mode_max + 1);
+    for (size_t m = 0; m < c.size(); ++m) {
+      fmt::print(out, "{:15.5f}{:15.7f}{:15d}\n", freqs(i), c[m], m);
     }
   }
   out.close();

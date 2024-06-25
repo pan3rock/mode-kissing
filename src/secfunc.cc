@@ -55,6 +55,16 @@ SecularFunction::SecularFunction(const Eigen::Ref<const Eigen::ArrayXXd> model,
 }
 
 double SecularFunction::evaluate(double f, double c) {
+  ilvl_ = -1;
+  if (sh_) {
+    return evaluate_sh(f, c);
+  } else {
+    return evaluate_psv(f, c);
+  }
+}
+
+double SecularFunction::evaluate(double f, double c, int ilvl) {
+  ilvl_ = ilvl;
   if (sh_) {
     return evaluate_sh(f, c);
   } else {
@@ -77,8 +87,12 @@ double SecularFunction::evaluate_psv(double f, double c) {
   X *= pow(mu(0), 2);
   normalize(X);
 
+  int imax = nl_ - 1;
+  if (ilvl_ > 0)
+    imax = ilvl_;
+
   ArrayXcd Xnew(6);
-  for (int i = 0; i < nl_ - 1; ++i) {
+  for (int i = 0; i < imax; ++i) {
     double r_si = dns_(i + 1) / dns_(i);
     double r_en = 2.0 * (r1(i) - r_si * r1(i + 1));
 
@@ -203,7 +217,11 @@ double SecularFunction::evaluate_sh(double f, double c) {
   double e1 = rho1 * rb;
   double e2 = 1.0 / (beta1 * beta1);
 
-  for (int m = nl_ - 2; m >= iwater_; --m) {
+  int mmin = iwater_;
+  if (ilvl_ > 0)
+    mmin = ilvl_ - 1;
+
+  for (int m = nl_ - 2; m >= mmin; --m) {
     beta1 = vs_(m);
     rho1 = dns_(m);
     double xmu = rho1 * beta1 * beta1;

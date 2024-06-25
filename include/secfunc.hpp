@@ -7,6 +7,7 @@ class SecularFunction {
 public:
   SecularFunction(const Eigen::Ref<const Eigen::ArrayXXd> model, bool sh);
   double evaluate(double f, double c);
+  double evaluate(double f, double c, int ilvl);
 
 private:
   double evaluate_psv(double f, double c);
@@ -17,6 +18,7 @@ private:
   const bool sh_;
   const bool is_water_;
   int iwater_;
+  int ilvl_ = -1;
 };
 
 #endif
