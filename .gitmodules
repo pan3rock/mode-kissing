@@ -1,0 +1,9 @@
+[submodule "external/HighFive"]
+	path = external/HighFive
+	url = https://github.com/BlueBrain/HighFive.git
+[submodule "external/fmt"]
+	path = external/fmt
+	url = https://github.com/fmtlib/fmt.git
+[submodule "external/toml11"]
+	path = external/toml11
+	url = https://github.com/ToruNiina/toml11.git
