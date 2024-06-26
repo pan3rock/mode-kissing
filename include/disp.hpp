@@ -24,7 +24,7 @@ private:
 
   const double ednn_ = 0.25;
   const int nfine_ = 1;
-  const double ctol_ = 1.0e-7;
+  const double ctol_ = 1.0e-6;
 
   const int nl_;
   Eigen::ArrayXd thk_, vs_, vp_;

@@ -24,6 +24,7 @@
 
 #include <Eigen/Dense>
 #include <complex>
+#include <fmt/format.h>
 
 using namespace Eigen;
 using namespace std::complex_literals;

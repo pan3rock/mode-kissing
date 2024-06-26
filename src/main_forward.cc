@@ -47,6 +47,9 @@ int main(int argc, char const *argv[]) {
   app.add_option("--model", file_model, "filename of model");
   std::string file_out = "disp.txt";
   app.add_option("-o,--out", file_out, "filename of output");
+  int ilvl = 0;
+  app.add_option("--lvl", ilvl,
+                 "index of layer (starting from 1), use new version if unset");
 
   CLI11_PARSE(app, argc, argv);
 
@@ -65,10 +68,17 @@ int main(int argc, char const *argv[]) {
   const auto nf = toml::find<int>(dispersion, "nf");
   ArrayXd freqs = ArrayXd::LinSpaced(nf, fmin, fmax);
   for (int i = 0; i < freqs.size(); ++i) {
-    auto samples = disp.get_samples(freqs[i]);
-    // auto c = disp.search(freqs(i), mode_max + 1, samples);
-    // auto c = disp.search(freqs(i), mode_max + 1, samples, 2);
-    auto c = disp.search_pred(freqs(i), mode_max + 1);
+    std::vector<double> c;
+    if (ilvl == 0) {
+      c = disp.search_pred(freqs(i), mode_max + 1);
+    } else {
+      auto samples = disp.get_samples(freqs[i]);
+      if (ilvl < model.rows()) {
+        c = disp.search(freqs(i), mode_max + 1, samples, ilvl);
+      } else {
+        c = disp.search(freqs(i), mode_max + 1, samples);
+      }
+    }
     for (size_t m = 0; m < c.size(); ++m) {
       fmt::print(out, "{:15.5f}{:15.7f}{:15d}\n", freqs(i), c[m], m);
     }
