@@ -48,31 +48,30 @@ if __name__ == "__main__":
     if use_color:
         colors = plt.rcParams["axes.prop_cycle"].by_key()["color"]
     else:
-        colors = ["k"] * 200
+        colors = ["k"] * 10000
 
     if file_out:
         plt.style.use(["science", "nature"])
 
-    plt.figure()
+    fig, ax = plt.subplots(layout="constrained")
     for i, m in enumerate(modes):
         d = disp[disp[:, 2] == m]
-        plt.plot(d[:, 0], d[:, 1] * km2m, "-", c=colors[i], label=str(m))
+        ax.plot(d[:, 0], d[:, 1] * km2m, "-", c=colors[i], label=str(m))
 
     if use_color:
         if len(modes) < 5:
-            plt.legend()
+            ax.legend()
 
     if file_ref:
         disp_ref = np.loadtxt(file_ref)
         modes = set(disp_ref[:, 2].astype(int))
         for i, m in enumerate(modes):
             d = disp_ref[disp_ref[:, 2] == m]
-            plt.plot(d[:, 0], d[:, 1] * km2m, "--", c="k")
+            ax.plot(d[:, 0], d[:, 1] * km2m, "--", c="k")
 
-    plt.xlim([np.min(disp[:, 0]), np.max(disp[:, 0])])
-    plt.xlabel("Frequency (Hz)")
-    plt.ylabel("Phase velocity ({:s}/s)".format(unit))
-    plt.tight_layout()
+    ax.set_xlim([np.min(disp[:, 0]), np.max(disp[:, 0])])
+    ax.set_xlabel("Frequency (Hz)")
+    ax.set_ylabel("Phase velocity ({:s}/s)".format(unit))
 
     if file_out:
         plt.savefig(file_out, dpi=dpi)

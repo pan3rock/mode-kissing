@@ -32,7 +32,7 @@ def main():
     if show_sign:
         sfunc = np.sign(sfunc)
 
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(layout="constrained")
     ax.axhline(0, c="k", linestyle="-", alpha=0.6)
     if show_sample:
         for i in range(samples.shape[0]):
@@ -45,7 +45,6 @@ def main():
         ax.plot(samples, N, "-", c="brown")
     ax.plot(c, sfunc, "k-", alpha=0.8)
     ax.set_xlim([c[0] - 0.01, c[-1] + 0.01])
-    plt.tight_layout()
     plt.show()
 
 

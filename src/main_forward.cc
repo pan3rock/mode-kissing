@@ -39,7 +39,7 @@ int main(int argc, char const *argv[]) {
 
   std::string file_config = "config.toml";
   app.add_option("-c,--config", file_config, "toml-type configure file");
-  int mode_max = 0;
+  int mode_max = 10000;
   app.add_option("-m,--mode", mode_max, "maximum mode up to");
   bool sh = false;
   app.add_flag("--sh", sh, "whether to compute Love waves");

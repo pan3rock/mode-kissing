@@ -12,6 +12,17 @@ public:
 private:
   double evaluate_psv(double f, double c);
   double evaluate_sh(double f, double c);
+  double dltar4(double freq, double c);
+
+  void var(double p, double q, double ra, double rb, double wvno, double xka,
+           double xkb, double dpth, double &w, double &cosp, double &a0,
+           double &cpcq, double &cpy, double &cpz, double &cqw, double &cqx,
+           double &xy, double &xz, double &wy, double &wz);
+
+  Eigen::ArrayXXd dnka(double wvno2, double gam, double gammk, double rho,
+                       double a0, double cpcq, double cpy, double cpz,
+                       double cqw, double cqx, double xy, double xz, double wy,
+                       double wz);
 
   const int nl_;
   Eigen::ArrayXd thk_, dns_, vs_, vp_;

@@ -64,7 +64,7 @@ int main(int argc, char const *argv[]) {
 
   double cmin = model.col(3).minCoeff() * 0.8;
   cmin = toml::find_or<double>(conf_secfunc, "cmin", cmin);
-  double cmax = model.col(3).maxCoeff();
+  double cmax = model(model.rows() - 1, 3);
   cmax = toml::find_or<double>(conf_secfunc, "cmax", cmax);
   ArrayXd c = ArrayXd::LinSpaced(nc, cmin, cmax);
 

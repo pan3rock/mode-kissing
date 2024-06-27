@@ -65,9 +65,10 @@ Dispersion::Dispersion(const Eigen::Ref<const Eigen::ArrayXXd> model, bool sh)
   vs_hf_ = vs_(nl_ - 1);
   rayv_ = evaluate_rayleigh_velocity();
 
-  for (int i = 1; i < nl_; ++i) {
-    if (vs_(i) < vs_(i - 1) && vs_(i) < vs_(i + 1))
+  for (int i = 1; i < nl_ - 1; ++i) {
+    if (vs_(i) < vs_(i - 1) && vs_(i) < vs_(i + 1)) {
       ilvl_.push_back(i);
+    }
   }
 }
 
@@ -113,7 +114,7 @@ std::vector<double> Dispersion::get_samples(double f) {
   if (sh_) {
     cmin = vs_min_;
   } else {
-    cmin = std::min(vs_min_, rayv_) * 0.9;
+    cmin = std::min(vs_min_, rayv_) * 0.8;
   }
   std::vector<double> pred;
   pred.push_back(cmin - ctol_ * 100);
@@ -122,7 +123,7 @@ std::vector<double> Dispersion::get_samples(double f) {
   double dc = (vs_hf_ - vs_min_) / nmax;
   double c1 = vs_min_;
   double e1 = approx(f, c1);
-  while (c1 < vs_max_) {
+  while (c1 < vs_hf_) {
     double c2 = c1 + dc;
     double e2 = approx(f, c2);
     while (abs(e2 - e1) > ednn_) {
@@ -131,12 +132,12 @@ std::vector<double> Dispersion::get_samples(double f) {
     }
     c1 = c2;
     e1 = e2;
-    if (c2 < vs_max_) {
+    if (c2 < vs_hf_) {
       pred.push_back(c2);
     }
   }
 
-  pred.push_back(vs_max_ + ctol_ * 100);
+  pred.push_back(vs_hf_ - ctol_);
   std::sort(pred.begin(), pred.end());
   for (int i = 0; i < nfine_; ++i) {
     int num = pred.size();
@@ -147,7 +148,6 @@ std::vector<double> Dispersion::get_samples(double f) {
     std::sort(pred.begin(), pred.end());
   }
   samples.insert(samples.end(), pred.begin(), pred.end());
-
   std::sort(samples.begin(), samples.end());
 
   if (!sh_) {
@@ -173,8 +173,9 @@ double Dispersion::search_mode(double f, int mode) {
 std::vector<double> Dispersion::search_pred(double f, int num_mode) {
   const int MMAX = 10000;
   auto samples = get_samples(f);
+  auto samples_bak = samples;
   for (int ilvl : ilvl_) {
-    auto c_find = search(f, MMAX, samples, ilvl);
+    auto c_find = search(f, MMAX, samples_bak, ilvl);
     for (auto c : c_find) {
       samples.push_back(c - ctol_);
       samples.push_back(c);
@@ -202,7 +203,10 @@ std::vector<double> Dispersion::search(double f, int num_mode,
     f_curr = func(c_curr);
     if (std::isnan(f_curr))
       continue;
-    if (f_curr * f_prev < 0.0) {
+    if (abs(f_curr) == 0) {
+      find.push_back(c_curr);
+      ++modes;
+    } else if (f_curr * f_prev < 0.0) {
       double root = toms748(func, c_prev, c_curr, nullptr, ctol_,
                             defaultRelativeTolerance, defaultMaximumIterations,
                             defaultInterpolationsPerIteration);
@@ -211,9 +215,9 @@ std::vector<double> Dispersion::search(double f, int num_mode,
       }
       find.push_back(root);
       ++modes;
-      if (modes >= num_mode)
-        break;
     }
+    if (modes >= num_mode)
+      break;
 
     c_prev = c_curr;
     f_prev = f_curr;
