@@ -56,7 +56,15 @@ if __name__ == "__main__":
     fig, ax = plt.subplots(layout="constrained")
     for i, m in enumerate(modes):
         d = disp[disp[:, 2] == m]
-        ax.plot(d[:, 0], d[:, 1] * km2m, "-", c=colors[i], label=str(m))
+        ax.plot(
+            d[:, 0],
+            d[:, 1] * km2m,
+            "-",
+            c=colors[i],
+            label=str(m),
+            linewidth=2,
+            alpha=0.82,
+        )
 
     if use_color:
         if len(modes) < 5:
@@ -67,7 +75,14 @@ if __name__ == "__main__":
         modes = set(disp_ref[:, 2].astype(int))
         for i, m in enumerate(modes):
             d = disp_ref[disp_ref[:, 2] == m]
-            ax.plot(d[:, 0], d[:, 1] * km2m, "--", c="r")
+            ax.plot(
+                d[:, 0],
+                d[:, 1] * km2m,
+                linestyle="--",
+                c="r",
+                linewidth=2,
+                alpha=0.8,
+            )
 
     ax.set_xlim([np.min(disp[:, 0]), np.max(disp[:, 0])])
     ax.set_xlabel("Frequency (Hz)")

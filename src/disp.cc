@@ -108,17 +108,7 @@ double Dispersion::approx(double f, double c) {
 }
 
 std::vector<double> Dispersion::get_samples(double f) {
-  std::vector<double> samples;
-
-  double cmin;
-  if (sh_) {
-    cmin = vs_min_;
-  } else {
-    cmin = std::min(vs_min_, rayv_) * 0.8;
-  }
   std::vector<double> pred;
-  pred.push_back(cmin - ctol_ * 100);
-
   int nmax = static_cast<int>(std::floor(approx(f, vs_hf_))) + 1;
   double dc = (vs_hf_ - vs_min_) / nmax;
   double c1 = vs_min_;
@@ -147,13 +137,17 @@ std::vector<double> Dispersion::get_samples(double f) {
     }
     std::sort(pred.begin(), pred.end());
   }
+
+  std::vector<double> samples;
   samples.insert(samples.end(), pred.begin(), pred.end());
+  samples.push_back(vs_min_ - ctol_ * 10);
+  samples.push_back(vs_min_ + ctol_ * 10);
   std::sort(samples.begin(), samples.end());
 
   if (!sh_) {
-    samples.push_back(rayv_ - ctol_ * 100);
+    samples.push_back(rayv_ - ctol_ * 10);
     samples.push_back(rayv_);
-    samples.push_back(rayv_ + ctol_ * 100);
+    samples.push_back(rayv_ + ctol_ * 10);
     std::sort(samples.begin(), samples.end());
   }
 
