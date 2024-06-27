@@ -173,9 +173,8 @@ double Dispersion::search_mode(double f, int mode) {
 std::vector<double> Dispersion::search_pred(double f, int num_mode) {
   const int MMAX = 10000;
   auto samples = get_samples(f);
-  auto samples_bak = samples;
   for (int ilvl : ilvl_) {
-    auto c_find = search(f, MMAX, samples_bak, ilvl);
+    auto c_find = search(f, MMAX, samples, ilvl);
     for (auto c : c_find) {
       samples.push_back(c - ctol_);
       samples.push_back(c);
