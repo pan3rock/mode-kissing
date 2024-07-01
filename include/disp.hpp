@@ -15,6 +15,8 @@ public:
   std::vector<double> search_pred(double f, int num_mode);
   double search_mode(double f, int mode);
   std::vector<double> get_samples(double f);
+  std::vector<double> predict_samples(double f,
+                                      const std::vector<double> &samples);
   double approx(double f, double c);
 
 private:
@@ -23,7 +25,7 @@ private:
                                   const Eigen::ArrayXd &dcs);
 
   const double ednn_ = 0.5;
-  const int nfine_ = 3;
+  const int nfine_ = 2;
   const double ctol_ = 1.0e-6;
 
   const int nl_;

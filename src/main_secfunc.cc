@@ -84,12 +84,14 @@ int main(int argc, char const *argv[]) {
   for (size_t i = 0; i < samples.size(); ++i) {
     N(i) = disp.approx(freq, samples[i]);
   }
+  auto samples_pred = disp.predict_samples(freq, samples);
 
   H5Easy::File fout(file_out, H5Easy::File::Overwrite);
   H5Easy::dump(fout, "f", freq);
   H5Easy::dump(fout, "c", c);
   H5Easy::dump(fout, "sfunc", sfunc);
   H5Easy::dump(fout, "samples", samples);
+  H5Easy::dump(fout, "samples_pred", samples_pred);
   H5Easy::dump(fout, "N", N);
   H5Easy::dump(fout, "roots", roots);
 

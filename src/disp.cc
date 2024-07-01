@@ -127,6 +127,7 @@ std::vector<double> Dispersion::get_samples(double f) {
     }
   }
 
+  pred.push_back(0.8 * vs_min_);
   pred.push_back(vs_hf_ - ctol_);
   std::sort(pred.begin(), pred.end());
   for (int i = 0; i < nfine_; ++i) {
@@ -145,9 +146,7 @@ std::vector<double> Dispersion::get_samples(double f) {
   std::sort(samples.begin(), samples.end());
 
   if (!sh_) {
-    samples.push_back(rayv_ - ctol_ * 10);
     samples.push_back(rayv_);
-    samples.push_back(rayv_ + ctol_ * 10);
     std::sort(samples.begin(), samples.end());
   }
 
@@ -165,19 +164,27 @@ double Dispersion::search_mode(double f, int mode) {
 }
 
 std::vector<double> Dispersion::search_pred(double f, int num_mode) {
-  const int MMAX = 10000;
   auto samples = get_samples(f);
-  for (int ilvl : ilvl_) {
-    auto c_find = search(f, MMAX, samples, ilvl);
-    for (auto c : c_find) {
-      samples.push_back(c - ctol_);
-      samples.push_back(c);
-      samples.push_back(c + ctol_);
-    }
-  }
+  auto samples_pred = predict_samples(f, samples);
+  samples.insert(samples.end(), samples_pred.begin(), samples_pred.end());
   std::sort(samples.begin(), samples.end());
   std::vector<double> cs = search(f, num_mode, samples, -1);
   return cs;
+}
+
+std::vector<double>
+Dispersion::predict_samples(double f, const std::vector<double> &samples) {
+  const int MMAX = 10000;
+  std::vector<double> samples_pred;
+  for (int ilvl : ilvl_) {
+    auto c_find = search(f, MMAX, samples, ilvl);
+    for (auto c : c_find) {
+      samples_pred.push_back(c - ctol_);
+      samples_pred.push_back(c);
+      samples_pred.push_back(c + ctol_);
+    }
+  }
+  return samples_pred;
 }
 
 std::vector<double> Dispersion::search(double f, int num_mode,
