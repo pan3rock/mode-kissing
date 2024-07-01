@@ -62,8 +62,8 @@ if __name__ == "__main__":
             "-",
             c=colors[i],
             label=str(m),
-            linewidth=2,
-            alpha=0.82,
+            linewidth=1,
+            alpha=0.8,
         )
 
     if use_color:
@@ -80,7 +80,7 @@ if __name__ == "__main__":
                 d[:, 1] * km2m,
                 linestyle="--",
                 c="r",
-                linewidth=2,
+                linewidth=1,
                 alpha=0.8,
             )
 

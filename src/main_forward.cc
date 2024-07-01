@@ -25,6 +25,7 @@
 
 #include <CLI11.hpp>
 #include <Eigen/Dense>
+#include <chrono>
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 #include <iostream>
@@ -59,6 +60,9 @@ int main(int argc, char const *argv[]) {
     file_model = toml::find<std::string>(dispersion, "file_model");
   }
 
+  std::chrono::steady_clock::time_point begin =
+      std::chrono::steady_clock::now();
+
   auto model = loadtxt(file_model);
 
   Dispersion disp(model, sh);
@@ -84,6 +88,13 @@ int main(int argc, char const *argv[]) {
     }
   }
   out.close();
+
+  std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+  double elapsed =
+      std::chrono::duration_cast<std::chrono::microseconds>(end - begin)
+          .count() /
+      1000000.0;
+  fmt::print("{:12.3f} s\n", elapsed);
 
   return 0;
 }
