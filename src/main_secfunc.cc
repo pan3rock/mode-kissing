@@ -79,7 +79,7 @@ int main(int argc, char const *argv[]) {
   const int mode_max = 1000;
   Dispersion disp(model, sh);
   auto samples = disp.get_samples(freq);
-  auto roots = disp.search(freq, mode_max, samples);
+  auto roots = disp.search_pred(freq, mode_max);
   ArrayXd N(samples.size());
   for (size_t i = 0; i < samples.size(); ++i) {
     N(i) = disp.approx(freq, samples[i]);

@@ -68,6 +68,7 @@ Dispersion::Dispersion(const Eigen::Ref<const Eigen::ArrayXXd> model, bool sh)
   for (int i = 1; i < nl_ - 1; ++i) {
     if (vs_(i) < vs_(i - 1) && vs_(i) < vs_(i + 1)) {
       ilvl_.push_back(i);
+      // ilvl_.push_back(i - 1); // dltar4
     }
   }
 }

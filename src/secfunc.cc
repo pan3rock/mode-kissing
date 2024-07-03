@@ -162,10 +162,12 @@ double SecularFunction::evaluate_psv(double f, double c) {
       Sb = 0.0;
     }
 
-    Cmplx pp1 = Cb * X(1) + sk * Sb * X(2);
-    Cmplx pp2 = Cb * X(3) + sk * Sb * X(4);
-    Cmplx pp3 = (1.0 / sk) * Sb * X(1) + Cb * X(2);
-    Cmplx pp4 = (1.0 / sk) * Sb * X(3) + Cb * X(4);
+    Cmplx ss1 = Sb * sk;
+    Cmplx ss2 = Sb / sk;
+    Cmplx pp1 = Cb * X(1) + ss1 * X(2);
+    Cmplx pp2 = Cb * X(3) + ss1 * X(4);
+    Cmplx pp3 = ss2 * X(1) + Cb * X(2);
+    Cmplx pp4 = ss2 * X(3) + Cb * X(4);
 
     Cmplx qq1, qq2, qq3, qq4;
     if (scale == 1) {
@@ -174,10 +176,12 @@ double SecularFunction::evaluate_psv(double f, double c) {
       qq3 = pp3 - rk * pp4;
       qq4 = pp2 - pp1 / rk;
     } else {
-      qq1 = Ca * pp1 - rk * Sa * pp2;
-      qq2 = Ca * pp4 - Sa * pp3 / rk;
-      qq3 = Ca * pp3 - rk * Sa * pp4;
-      qq4 = Ca * pp2 - Sa * pp1 / rk;
+      Cmplx sr1 = Sa * rk;
+      Cmplx sr2 = Sa / rk;
+      qq1 = Ca * pp1 - sr1 * pp2;
+      qq2 = Ca * pp4 - sr2 * pp3;
+      qq3 = Ca * pp3 - sr1 * pp4;
+      qq4 = Ca * pp2 - sr2 * pp1;
     }
 
     Cmplx yy1 = r_a * qq1;
@@ -202,14 +206,10 @@ double SecularFunction::evaluate_psv(double f, double c) {
     normalize(X);
   }
 
-  double dr = 1.0 - c2 / vp2(nl_ - 1);
-  double ds = 1.0 - c2 / vs2(nl_ - 1);
-  Cmplx rk = sqrt(dr + 0.0i);
-  Cmplx sk = sqrt(ds + 0.0i);
-
-  if (sk.real() < 0) {
-    sk *= -1.0;
-  }
+  Cmplx dr = 1.0 - c2 / vp2(nl_ - 1);
+  Cmplx ds = 1.0 - c2 / vs2(nl_ - 1);
+  Cmplx rk = sqrt(dr);
+  Cmplx sk = sqrt(ds);
 
   Cmplx dd = (X(1) + sk * X(2) - rk * (X(3) + sk * X(4)));
   return dd.real();

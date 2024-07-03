@@ -24,7 +24,7 @@ private:
   Eigen::ArrayXd secular_function(double freq, double c1,
                                   const Eigen::ArrayXd &dcs);
 
-  const double ednn_ = 0.5;
+  const double ednn_ = 0.50;
   const int nfine_ = 2;
   const double ctol_ = 1.0e-6;
 
