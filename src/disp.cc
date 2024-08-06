@@ -167,7 +167,19 @@ double Dispersion::search_mode(double f, int mode) {
 std::vector<double> Dispersion::search_pred(double f, int num_mode) {
   auto samples = get_samples(f);
   auto samples_pred = predict_samples(f, samples);
+
+  // insert additional points between samples_pred and its neighbor samples
+  std::vector<double> samples_add;
+  for (auto c : samples_pred) {
+    size_t ic1 = std::lower_bound(samples.begin(), samples.end(), c) -
+                 samples.begin() - 1;
+    size_t ic2 = ic1 + 1;
+    samples_add.push_back((c + samples[ic1]) / 2.0);
+    samples_add.push_back((c + samples[ic2]) / 2.0);
+  }
+
   samples.insert(samples.end(), samples_pred.begin(), samples_pred.end());
+  samples.insert(samples.end(), samples_add.begin(), samples_add.end());
   std::sort(samples.begin(), samples.end());
   std::vector<double> cs = search(f, num_mode, samples, -1);
   return cs;

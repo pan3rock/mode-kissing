@@ -1,0 +1,17 @@
+[forward]
+file_model = "model.txt"
+fmin = 0.1
+fmax = 100.0
+nf = 1000
+
+[secfunc]
+file_model = "model.txt"
+nc = 10000
+#cmin = 0.250
+#cmax = 0.255
+cmin = 0.271
+cmax = 0.284
+#cmin = 0.26
+#cmax = 0.275
+#cmin = 0.286
+#cmax = 0.287

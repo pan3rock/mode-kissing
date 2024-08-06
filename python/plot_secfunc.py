@@ -74,7 +74,7 @@ def main():
         ax2.plot(samples, N, "-", c="tab:blue", label="N")
         ax2.set_ylabel("N", color="tab:blue")
         ax2.tick_params(axis="y", colors="tab:blue")
-    ymax = np.amax(np.abs(sfunc))
+    ymax = np.nanmax(np.abs(sfunc))
     ax.plot(c, sfunc / ymax, "k-", alpha=0.8)
     ax.set_ylim([-1.2, 1.2])
     ax.set_yticks([-1, 0, 1])
