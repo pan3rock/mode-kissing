@@ -36,7 +36,8 @@
 using namespace Eigen;
 
 int main(int argc, char const *argv[]) {
-  CLI::App app{"Calculating dispersion curves with the delta-matrix method."};
+  CLI::App app{
+      "Calculating dispersion curves with the modified delta-matrix method."};
 
   std::string file_config = "config.toml";
   app.add_option("-c,--config", file_config, "toml-type configure file");
@@ -50,7 +51,7 @@ int main(int argc, char const *argv[]) {
   app.add_option("-o,--out", file_out, "filename of output");
   int ilvl = 0;
   app.add_option("--lvl", ilvl,
-                 "index of layer (starting from 1), use new version if unset");
+                 "index of layer (starting from 0), use new version if unset");
 
   CLI11_PARSE(app, argc, argv);
 

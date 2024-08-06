@@ -35,7 +35,8 @@
 using namespace Eigen;
 
 int main(int argc, char const *argv[]) {
-  CLI::App app{"Scanning secular function given a model and frequency."};
+  CLI::App app{
+      "Scanning dispersion/secular function given a model and frequency."};
 
   double freq;
   app.add_option("freq", freq, "frequency")->required();
