@@ -36,7 +36,7 @@ the generation of certain figures in our paper, we will focus on [model1](./demo
 config.toml model.txt
 ```
 
-The configuration file `config.toml` serves as the configuration file for the executable, containing easily understandable parameters. On the other hand, `model.txt` functions as the model input file providing descriptions of model parameters. Each line in `model.txt` includes parameters such as the "index of layers," "depth of the top interface of the layer," "density," "Vs," and "Vp." It is important to note that the numbers in the first column have no significance during the program's execution.
+The configuration file `config.toml` serves as the configuration file for the executable, containing easily understandable parameters. On the other hand, `model.txt` functions as the model input file providing descriptions of model parameters. Each line in `model.txt` includes parameters such as the "index of layers", "depth of the top interface of the layer", "density", "Vs" and "Vp". It is important to note that the numbers in the first column have no significance during the program's execution.
 
 1. **Calculation of dispersion curves**
     ```bash
@@ -56,6 +56,16 @@ The configuration file `config.toml` serves as the configuration file for the ex
     The command is to compute the dispersion function at the frequency 10 Hz.
 
     <img src="./doc/secfunc_model1_f10.jpg" width="500" height="400">
+
+    To produce Figure 7(a), you can uncomment the line "cmin = 0.271" and "cmax = 0.284" in config.toml, then
+
+    ```bash
+    > ../../bin/secfunc 30.7
+    > ../../python/plot_secfunc.py secfunc.h5 --sample --sample_pred --xlim 0.271 0.284
+    ```
+
+    <img src="./doc/secfunc_model1_f30.7.jpg" width="500" height="400">
+
 
 3. **Calculation of dispersion curves if the proposed algorithm not applied**
     ```bash
@@ -77,7 +87,7 @@ The configuration file `config.toml` serves as the configuration file for the ex
 
 ## References
 
-- Pan, L. & Chen X., (submitted), Efficient Computation of Dispersion Curves in Low-velocity Layered Half-spaces,
+- Pan, L. & Chen X. (submitted). Efficient Computation of Dispersion Curves in Low-velocity Layered Half-spaces.
 Bulletin of the Seismological Society of America.
 - Buchen, P. W., & Ben-Hador, R. (1996). Free-mode surface-wave computations. Geophysical Journal International, 124(3), 869-887.
-- FAN, Y. H., CHEN, X. F., LIU, X. F., LIU, J. Q., & CHEN, X. H. (2007). Approximate decomposition of the dispersion equation at high frequencies and the number of multimodes for Rayleigh waves. Chinese Journal of Geophysics, 50(1), 222-230.
+- Fan, Y., Chen, X., Liu, X., Liu, J., & Chen, X. (2007). Approximate decomposition of the dispersion equation at high frequencies and the number of multimodes for Rayleigh waves. Chinese Journal of Geophysics, 50(1), 222-230.
