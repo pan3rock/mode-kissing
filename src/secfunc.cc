@@ -142,6 +142,7 @@ double SecularFunction::evaluate_psv(double f, double c) {
       // Handle hyperbolic overflow
       if (bb > 80.0) {
         scale = 1;
+        Sa /= Ca;
         Cb /= Ca;
         Sb /= Ca;
       }
