@@ -54,7 +54,7 @@ double calculate_newton_step(const double root, const double vp,
 
 void append_samples_with_roots(std::vector<double> &samples,
                                const std::vector<double> roots) {
-  const double ctol = 1.0e-6;
+  const double ctol = 1.0e-6; // it needs to be the same as value in disp.hpp
   std::vector<double> samples_add;
   for (auto c : roots) {
     size_t ic1 = std::lower_bound(samples.begin(), samples.end(), c) -
@@ -69,6 +69,11 @@ void append_samples_with_roots(std::vector<double> &samples,
 
   samples.insert(samples.end(), samples_add.begin(), samples_add.end());
   std::sort(samples.begin(), samples.end());
+  samples.erase(std::unique(samples.begin(), samples.end(),
+                            [ctol](double l, double r) {
+                              return std::abs(r - l) < ctol;
+                            }),
+                samples.end());
 }
 
 std::vector<int> find_required_nl(const Eigen::ArrayXd &vs) {
