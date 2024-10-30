@@ -4,7 +4,6 @@ import h5py
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.interpolate import interp1d
-import scienceplots
 
 params = {
     "axes.labelsize": 14,
@@ -20,6 +19,7 @@ plt.rcParams.update(params)
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("file_sfunc")
+    parser.add_argument("-n", "--nl", type=int, required=True)
     parser.add_argument("--sign", action="store_true")
     parser.add_argument("--sample", action="store_true")
     parser.add_argument("--sample_pred", action="store_true")
@@ -28,6 +28,7 @@ def main():
     parser.add_argument("--xlim", nargs=2, type=float)
     parser.add_argument("-o", "--out", default=None, help=" output figure name")
     args = parser.parse_args()
+    nl_show = args.nl
     file_sfunc = args.file_sfunc
     file_disp = args.disp
     show_sign = args.sign
@@ -41,10 +42,10 @@ def main():
     f = fh5["f"][()]
     c = fh5["c"][()]
     sfunc = fh5["sfunc"][()]
-    samples = fh5["samples"][()]
-    samples_pred = fh5["samples_pred"][()]
-    N = fh5["N"][()]
-    roots = fh5["roots"][()]
+    samples = fh5["samples/{:d}".format(nl_show)][()]
+    # samples_pred = fh5["samples_pred"][()]
+    N = fh5["N/{:d}".format(nl_show)][()]
+    roots = fh5["roots/{:d}".format(nl_show)][()]
     fh5.close()
 
     if show_sign:
@@ -58,11 +59,11 @@ def main():
             p1 = ax.axvline(samples[i], c="k", alpha=0.6, linewidth=0.5)
         handles.append(p1)
         labels.append("samples")
-    if show_sample_pred:
-        for i in range(samples_pred.shape[0]):
-            p2 = ax.axvline(samples_pred[i], c="b", alpha=0.8, linewidth=0.5)
-        handles.append(p2)
-        labels.append("samples (LVL)")
+    # if show_sample_pred:
+    #     for i in range(samples_pred.shape[0]):
+    #         p2 = ax.axvline(samples_pred[i], c="b", alpha=0.8, linewidth=0.5)
+    #     handles.append(p2)
+    #     labels.append("samples (LVL)")
     if file_disp:
         plot_disp(ax, file_disp, f)
     for i in range(roots.shape[0]):

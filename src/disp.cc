@@ -52,6 +52,37 @@ double calculate_newton_step(const double root, const double vp,
 }
 } // namespace
 
+void append_samples_with_roots(std::vector<double> &samples,
+                               const std::vector<double> roots) {
+  const double ctol = 1.0e-6;
+  std::vector<double> samples_add;
+  for (auto c : roots) {
+    size_t ic1 = std::lower_bound(samples.begin(), samples.end(), c) -
+                 samples.begin() - 1;
+    size_t ic2 = ic1 + 1;
+    samples_add.push_back(c - ctol);
+    samples_add.push_back(c);
+    samples_add.push_back(c + ctol);
+    samples_add.push_back((c + samples[ic1]) / 2.0);
+    samples_add.push_back((c + samples[ic2]) / 2.0);
+  }
+
+  samples.insert(samples.end(), samples_add.begin(), samples_add.end());
+  std::sort(samples.begin(), samples.end());
+}
+
+std::vector<int> find_required_nl(const Eigen::ArrayXd &vs) {
+  const int nl = vs.rows();
+  std::vector<int> ireq;
+  for (int i = 1; i < nl - 1; ++i) {
+    if (vs(i) < vs(i - 1) && vs(i) < vs(i + 1)) {
+      ireq.push_back(i);
+    }
+  }
+  ireq.push_back(nl);
+  return ireq;
+}
+
 Dispersion::Dispersion(const Eigen::Ref<const Eigen::ArrayXXd> model, bool sh)
     : nl_(model.rows()),
       thk_(model.col(1).tail(nl_ - 1) - model.col(1).head(nl_ - 1)),
@@ -64,13 +95,6 @@ Dispersion::Dispersion(const Eigen::Ref<const Eigen::ArrayXXd> model, bool sh)
   vs_max_ = vs_.maxCoeff();
   vs_hf_ = vs_(nl_ - 1);
   rayv_ = evaluate_rayleigh_velocity();
-
-  for (int i = 1; i < nl_ - 1; ++i) {
-    if (vs_(i) < vs_(i - 1) && vs_(i) < vs_(i + 1)) {
-      ilvl_.push_back(i);
-      // ilvl_.push_back(i - 1); // dltar4
-    }
-  }
 }
 
 Dispersion::~Dispersion() = default;
@@ -156,7 +180,7 @@ std::vector<double> Dispersion::get_samples(double f) {
 
 double Dispersion::search_mode(double f, int mode) {
   auto samples = get_samples(f);
-  std::vector<double> cs = search(f, mode + 1, samples, -1);
+  std::vector<double> cs = search(f, mode + 1, samples);
   if (int(cs.size()) < mode + 1) {
     return std::numeric_limits<double>::quiet_NaN();
   } else {
@@ -164,47 +188,10 @@ double Dispersion::search_mode(double f, int mode) {
   }
 }
 
-std::vector<double> Dispersion::search_pred(double f, int num_mode) {
-  auto samples = get_samples(f);
-  auto samples_pred = predict_samples(f, samples);
-
-  // insert additional points between samples_pred and its neighbor samples
-  std::vector<double> samples_add;
-  for (auto c : samples_pred) {
-    size_t ic1 = std::lower_bound(samples.begin(), samples.end(), c) -
-                 samples.begin() - 1;
-    size_t ic2 = ic1 + 1;
-    samples_add.push_back((c + samples[ic1]) / 2.0);
-    samples_add.push_back((c + samples[ic2]) / 2.0);
-  }
-
-  samples.insert(samples.end(), samples_pred.begin(), samples_pred.end());
-  samples.insert(samples.end(), samples_add.begin(), samples_add.end());
-  std::sort(samples.begin(), samples.end());
-  std::vector<double> cs = search(f, num_mode, samples, -1);
-  return cs;
-}
-
-std::vector<double>
-Dispersion::predict_samples(double f, const std::vector<double> &samples) {
-  const int MMAX = 10000;
-  std::vector<double> samples_pred;
-  for (int ilvl : ilvl_) {
-    auto c_find = search(f, MMAX, samples, ilvl);
-    for (auto c : c_find) {
-      samples_pred.push_back(c - ctol_);
-      samples_pred.push_back(c);
-      samples_pred.push_back(c + ctol_);
-    }
-  }
-  return samples_pred;
-}
-
 std::vector<double> Dispersion::search(double f, int num_mode,
-                                       const std::vector<double> &samples,
-                                       int ilvl) {
+                                       const std::vector<double> &samples) {
   std::function<double(double)> func = [&](double c) {
-    return sf_->evaluate(f, c, ilvl);
+    return sf_->evaluate(f, c);
   };
 
   double c_prev = samples[0], c_curr;

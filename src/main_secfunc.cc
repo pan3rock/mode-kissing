@@ -44,8 +44,6 @@ int main(int argc, char const *argv[]) {
   app.add_option("-c,--config", file_config, "toml-type configure file");
   bool sh = false;
   app.add_flag("--sh", sh, "whether to compute Love waves");
-  int ilayer = -1;
-  app.add_option("-i,--ilayer", ilayer, "index of layers");
   std::string file_model = "";
   app.add_option("--model", file_model, "filename of model");
   std::string file_out = "secfunc.h5";
@@ -61,7 +59,6 @@ int main(int argc, char const *argv[]) {
   const int nc = toml::find<int>(conf_secfunc, "nc");
 
   ArrayXXd model = loadtxt(file_model);
-  SecularFunction sf(model, sh);
 
   double cmin = model.col(3).minCoeff() * 0.8;
   cmin = toml::find_or<double>(conf_secfunc, "cmin", cmin);
@@ -70,9 +67,10 @@ int main(int argc, char const *argv[]) {
   ArrayXd c = ArrayXd::LinSpaced(nc, cmin, cmax);
 
   ArrayXd sfunc(nc);
+  SecularFunction sf(model, sh);
   for (int i_c = 0; i_c < nc; ++i_c) {
     Timer::begin("sfunc");
-    sfunc(i_c) = sf.evaluate(freq, c(i_c), ilayer);
+    sfunc(i_c) = sf.evaluate(freq, c(i_c));
     Timer::end("sfunc");
   }
   std::cout << Timer::summery() << std::endl;
@@ -80,21 +78,36 @@ int main(int argc, char const *argv[]) {
   const int mode_max = 1000;
   Dispersion disp(model, sh);
   auto samples = disp.get_samples(freq);
-  auto roots = disp.search_pred(freq, mode_max);
   ArrayXd N(samples.size());
   for (size_t i = 0; i < samples.size(); ++i) {
     N(i) = disp.approx(freq, samples[i]);
   }
-  auto samples_pred = disp.predict_samples(freq, samples);
 
   H5Easy::File fout(file_out, H5Easy::File::Overwrite);
   H5Easy::dump(fout, "f", freq);
   H5Easy::dump(fout, "c", c);
   H5Easy::dump(fout, "sfunc", sfunc);
-  H5Easy::dump(fout, "samples", samples);
-  H5Easy::dump(fout, "samples_pred", samples_pred);
-  H5Easy::dump(fout, "N", N);
-  H5Easy::dump(fout, "roots", roots);
+
+  int istart = 1;
+  if (sh) {
+    istart = 2;
+  }
+  for (int n = istart; n <= model.rows(); ++n) {
+    ArrayXXd model_trim = model.topRows(n);
+    Dispersion disp(model_trim, sh);
+    auto samples = disp.get_samples(freq);
+    ArrayXd N(samples.size());
+    for (size_t i = 0; i < samples.size(); ++i) {
+      N(i) = disp.approx(freq, samples[i]);
+    }
+    auto roots = disp.search(freq, mode_max, samples);
+    std::string key = fmt::format("N/{:d}", n);
+    H5Easy::dump(fout, key, N);
+    key = fmt::format("samples/{:d}", n);
+    H5Easy::dump(fout, key, samples);
+    key = fmt::format("roots/{:d}", n);
+    H5Easy::dump(fout, key, roots);
+  }
 
   return 0;
 }

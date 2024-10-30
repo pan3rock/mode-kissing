@@ -6,17 +6,19 @@
 
 class SecularFunction;
 
+std::vector<int> find_required_nl(const Eigen::ArrayXd &vs);
+
+void append_samples_with_roots(std::vector<double> &samples,
+                               const std::vector<double> roots);
+
 class Dispersion {
 public:
   Dispersion(const Eigen::Ref<const Eigen::ArrayXXd> model, bool sh);
   ~Dispersion();
   std::vector<double> search(double f, int num_mode,
-                             const std::vector<double> &samples, int ilvl = -1);
-  std::vector<double> search_pred(double f, int num_mode);
+                             const std::vector<double> &samples);
   double search_mode(double f, int mode);
   std::vector<double> get_samples(double f);
-  std::vector<double> predict_samples(double f,
-                                      const std::vector<double> &samples);
   double approx(double f, double c);
 
 private:
@@ -35,7 +37,6 @@ private:
   std::unique_ptr<SecularFunction> sf_;
   double vs0_, vp0_, vs_min_, vs_max_, vs_hf_, rayv_;
   double dc_rough_;
-  std::vector<int> ilvl_;
 };
 
 #endif

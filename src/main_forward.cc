@@ -49,9 +49,8 @@ int main(int argc, char const *argv[]) {
   app.add_option("--model", file_model, "filename of model");
   std::string file_out = "disp.txt";
   app.add_option("-o,--out", file_out, "filename of output");
-  int ilvl = 0;
-  app.add_option("--lvl", ilvl,
-                 "index of layer (starting from 0), use new version if unset");
+  bool raw = false;
+  app.add_flag("--raw", raw, "use the original algorithm");
 
   CLI11_PARSE(app, argc, argv);
 
@@ -66,7 +65,6 @@ int main(int argc, char const *argv[]) {
 
   auto model = loadtxt(file_model);
 
-  Dispersion disp(model, sh);
   std::ofstream out(file_out);
   const auto fmin = toml::find<double>(dispersion, "fmin");
   const auto fmax = toml::find<double>(dispersion, "fmax");
@@ -74,14 +72,21 @@ int main(int argc, char const *argv[]) {
   ArrayXd freqs = ArrayXd::LinSpaced(nf, fmin, fmax);
   for (int i = 0; i < freqs.size(); ++i) {
     std::vector<double> c;
-    if (ilvl == 0) {
-      c = disp.search_pred(freqs(i), mode_max + 1);
-    } else {
+    if (raw) {
+      Dispersion disp(model, sh);
       auto samples = disp.get_samples(freqs[i]);
-      if (ilvl < model.rows()) {
-        c = disp.search(freqs(i), mode_max + 1, samples, ilvl);
-      } else {
+      c = disp.search(freqs(i), mode_max + 1, samples);
+    } else {
+      auto vs = model.col(3);
+      auto ireq = find_required_nl(vs);
+      std::vector<double> c_pred;
+      for (auto nl : ireq) { // lvl, N (the last)
+        auto model_trim = model.topRows(nl);
+        Dispersion disp(model_trim, sh);
+        auto samples = disp.get_samples(freqs[i]);
+        append_samples_with_roots(samples, c_pred);
         c = disp.search(freqs(i), mode_max + 1, samples);
+        c_pred.insert(c_pred.end(), c.begin(), c.end());
       }
     }
     for (size_t m = 0; m < c.size(); ++m) {
