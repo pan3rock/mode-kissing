@@ -23,7 +23,7 @@ private:
                        double cqw, double cqx, double xy, double xz, double wy,
                        double wz);
 
-  const int method_ = 1; // method = 0: Buchen 1996; method = 1: Dunkin 1965.
+  const int method_ = 0; // method = 0: Buchen 1996; method = 1: Dunkin 1965.
 
   int nl_;
   Eigen::ArrayXd thk_, dns_, vs_, vp_;
