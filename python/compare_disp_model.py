@@ -33,7 +33,7 @@ def main():
     file_disp, file_model = files_disp_model
     file_disp_ref, file_model_ref = files_ref
 
-    fig, ax = plt.subplots(1, 2, width_ratios=[4, 1], layout="constrained")
+    fig, ax = plt.subplots(1, 2, width_ratios=[5, 1], layout="constrained")
     plot_disp(ax[0], file_disp_ref, "-", "k")
     plot_disp(ax[0], file_disp, "--", "r")
 
@@ -66,8 +66,8 @@ def plot_disp(ax, file_disp, linestyle, color):
             d[:, 1],
             linestyle=linestyle,
             c=color,
-            alpha=0.6,
-            linewidth=2,
+            alpha=0.7,
+            linewidth=1.5,
         )
     f = disp[:, 0]
     ax.set_xlim([f.min(), f.max()])
@@ -82,7 +82,7 @@ def plot_model(ax, file_model, zmax, depth_m, linestyle, color):
     vs = np.append(vs, vs[-1])
     if depth_m:
         z *= 1000
-    ax.step(vs, z, linestyle=linestyle, c=color, alpha=0.6, linewidth=2)
+    ax.step(vs, z, linestyle=linestyle, c=color, alpha=0.7, linewidth=1.5)
 
 
 if __name__ == "__main__":

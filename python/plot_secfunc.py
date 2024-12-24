@@ -19,21 +19,17 @@ plt.rcParams.update(params)
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("file_sfunc")
-    parser.add_argument("-n", "--nl", type=int, required=True)
     parser.add_argument("--sign", action="store_true")
     parser.add_argument("--sample", action="store_true")
-    parser.add_argument("--sample_pred", action="store_true")
     parser.add_argument("--disp")
     parser.add_argument("--N", action="store_true")
     parser.add_argument("--xlim", nargs=2, type=float)
     parser.add_argument("-o", "--out", default=None, help=" output figure name")
     args = parser.parse_args()
-    nl_show = args.nl
     file_sfunc = args.file_sfunc
     file_disp = args.disp
     show_sign = args.sign
     show_sample = args.sample
-    show_sample_pred = args.sample_pred
     show_N = args.N
     xlim = args.xlim
     file_out = args.out
@@ -42,10 +38,8 @@ def main():
     f = fh5["f"][()]
     c = fh5["c"][()]
     sfunc = fh5["sfunc"][()]
-    samples = fh5["samples/{:d}".format(nl_show)][()]
-    # samples_pred = fh5["samples_pred"][()]
-    N = fh5["N/{:d}".format(nl_show)][()]
-    roots = fh5["roots/{:d}".format(nl_show)][()]
+    samples = fh5["samples"][()]
+    N = fh5["N"][()]
     fh5.close()
 
     if show_sign:
@@ -65,11 +59,9 @@ def main():
     #     handles.append(p2)
     #     labels.append("samples (LVL)")
     if file_disp:
-        plot_disp(ax, file_disp, f)
-    for i in range(roots.shape[0]):
-        p3 = ax.axvline(roots[i], c="r", alpha=0.6)
-    handles.append(p3)
-    labels.append("roots")
+        p3 = plot_disp(ax, file_disp, f)
+        handles.append(p3)
+        labels.append("roots")
     if show_N:
         ax2 = ax.twinx()
         ax2.plot(samples, N, "-", c="tab:blue", label="N")
@@ -98,7 +90,8 @@ def plot_disp(ax, file_disp, f):
         d = disp[modes == m]
         intp = interp1d(d[:, 0], d[:, 1], bounds_error=False)
         c = intp(f)
-        ax.axvline(c, c="b", alpha=0.6)
+        p = ax.axvline(c, c="r", alpha=0.6)
+    return p
 
 
 if __name__ == "__main__":

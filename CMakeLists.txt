@@ -1,10 +1,10 @@
-cmake_minimum_required(VERSION 3.8.0)
-project(dctomo-cmaes VERSION 1.0.0 LANGUAGES CXX)
+cmake_minimum_required(VERSION 3.10.0)
+project(mode-kissing VERSION 1.0.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-non-virtual-dtor")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O3 -fPIC -ffp-contract=fast")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O2 -fPIC -ffp-contract=fast")
 
 # Eigen
 find_package(Eigen3 3.3 REQUIRED NO_MODULE)
