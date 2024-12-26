@@ -1,7 +1,7 @@
 # mode-kissing
 Efficient Computation of Dispersion Curves in Low-velocity Layered Half-spaces
 
-A recurring challenge in practical scenarios involves models incorporating low-velocity layers, where the occurrence of ``mode-kissing'' and missing roots presents difficulties. In response to this issue, we present an algorithm designed to generate supplementary samples between neighboring roots at points of mode-kissing. This innovative approach leverages the fast delta matrix algorithm in conjunction with a root-searching technique. By incorporating additional samples, our proposed algorithm demonstrates remarkable efficacy and stability, establishing itself as a valuable tool with broad applicability in related fields.
+A recurring challenge in practical scenarios involves models incorporating low-velocity layers, where the occurrence of ``mode-kissing'' and missing roots presents difficulties. In response to this issue, we present an algorithm designed to generate supplementary samples between neighboring roots at points of mode-kissing. By incorporating additional samples, our proposed algorithm demonstrates remarkable efficacy and stability, establishing itself as a valuable tool with broad applicability in related fields.
 
 ## Dependencies
 
@@ -25,9 +25,7 @@ Install these external libraries according to the operating system, e.g. aptitud
 
 ## Examples
 
-There are four instances located in the directory [demo](./demo) corresponding to Model 1-4.
-For illustrative purposes on the computation of dispersion curves and 
-the generation of certain figures in our paper, we will focus on [model1](./demo/model1).
+There are an instance located in the directory [demo](./demo) corresponding to Model 1.
 
 ```bash
 > # the position here is the main directory of the program
@@ -51,25 +49,16 @@ The configuration file `config.toml` serves as the configuration file for the ex
 
     ```bash
     > ../../bin/secfunc 10
-    > ../../python/plot_secfunc.py secfunc.h5
+    > ../../python/plot_secfunc.py secfunc.h5 --sign --disp disp.txt
     ```
     The command is to compute the dispersion function at the frequency 10 Hz.
 
     <img src="./doc/secfunc_model1_f10.jpg" width="500" height="400">
 
-    To produce Figure 7(a), you can uncomment the line "cmin = 0.271" and "cmax = 0.284" in config.toml, then
-
-    ```bash
-    > ../../bin/secfunc 30.7
-    > ../../python/plot_secfunc.py secfunc.h5 --sample --sample_pred --xlim 0.271 0.284
-    ```
-
-    <img src="./doc/secfunc_model1_f30.7.jpg" width="500" height="400">
-
 
 3. **Calculation of dispersion curves if the proposed algorithm not applied**
     ```bash
-    > ../../bin/forward --lvl -1
+    > ../../bin/forward --raw
     > ../../python/plot_disp disp.txt
     ```
 
@@ -79,7 +68,7 @@ The configuration file `config.toml` serves as the configuration file for the ex
     ```bash
     > ../../bin/forward 
     > cp disp.txt disp_full.txt
-    > ../../bin/forward --lvl 2 
+    > ../../bin/forward --raw 
     > ../../python/plot_disp disp.txt --file_ref disp_full.txt
     ```
 
