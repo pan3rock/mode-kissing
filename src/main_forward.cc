@@ -64,6 +64,7 @@ int main(int argc, char const *argv[]) {
       std::chrono::steady_clock::now();
 
   auto model = loadtxt(file_model);
+  const double vs_hf = model(model.rows() - 1, 3);
 
   std::ofstream out(file_out);
   const auto fmin = toml::find<double>(dispersion, "fmin");
@@ -84,6 +85,7 @@ int main(int argc, char const *argv[]) {
         auto model_trim = model.topRows(nl);
         Dispersion disp(model_trim, sh);
         auto samples = disp.get_samples(freqs[i]);
+        check_samples(samples, vs_hf);
         append_samples_with_roots(samples, c_pred);
         c = disp.search(freqs(i), mode_max + 1, samples);
         c_pred.insert(c_pred.end(), c.begin(), c.end());

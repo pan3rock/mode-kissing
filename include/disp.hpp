@@ -11,6 +11,8 @@ std::vector<int> find_required_nl(const Eigen::ArrayXd &vs);
 void append_samples_with_roots(std::vector<double> &samples,
                                const std::vector<double> roots);
 
+void check_samples(std::vector<double> &samples, double vs_hf);
+
 class Dispersion {
 public:
   Dispersion(const Eigen::Ref<const Eigen::ArrayXXd> model, bool sh);

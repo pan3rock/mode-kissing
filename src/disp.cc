@@ -52,6 +52,15 @@ double calculate_newton_step(const double root, const double vp,
 }
 } // namespace
 
+void check_samples(std::vector<double> &samples, double vs_hf) {
+  std::vector<double> samples_valid;
+  for (auto c : samples) {
+    if (c < vs_hf)
+      samples_valid.push_back(c);
+  }
+  samples = samples_valid;
+}
+
 void append_samples_with_roots(std::vector<double> &samples,
                                const std::vector<double> roots) {
   const double ctol = 1.0e-6; // it needs to be the same as value in disp.hpp
