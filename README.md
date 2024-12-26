@@ -74,6 +74,10 @@ The configuration file `config.toml` serves as the configuration file for the ex
 
     <img src="./doc/disp_model1_compare.jpg" width="500" height="400">
 
+## Parameters
+
+For certain models, the algorithm may occasionally miss some roots. To reduce the likelihood of this occurring, you can increase the`nfine` parameter in [disp.hpp](./include/disp.hpp) to a larger number. While this adjustment can help ensure that fewer roots are missed, please be aware that it will result in longer running times. Especially for derivative-free inversion alogrithm, we suggest set a relatively large `nfine` if the program is used as the forwarding solver.
+
 ## References
 
 - Pan, L. & Chen X. (submitted). Efficient Computation of Dispersion Curves in Low-velocity Layered Half-spaces.
