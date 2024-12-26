@@ -1,9 +1,0 @@
-[forward]
-file_model = "model.txt"
-fmin = 0.001
-fmax = 1.0
-nf = 1000
-
-[secfunc]
-file_model = "model.txt"
-nc = 10000
