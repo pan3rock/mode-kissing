@@ -3,6 +3,8 @@ Efficient Computation of Dispersion Curves in Low-velocity Layered Half-spaces
 
 A recurring challenge in practical scenarios involves models incorporating low-velocity layers, where the occurrence of ``mode-kissing'' and missing roots presents difficulties. In response to this issue, we present an algorithm designed to generate supplementary samples between neighboring roots at points of mode-kissing. By incorporating additional samples, our proposed algorithm demonstrates remarkable efficacy and stability, establishing itself as a valuable tool with broad applicability in related fields.
 
+**It is important to highlight that the proposed algorithm herein is equally applicable to models without low-velocity layers.**
+
 ## Dependencies
 
 Install these external libraries according to the operating system, e.g. aptitude, pacman
@@ -29,7 +31,7 @@ There are an instance located in the directory [demo](./demo) corresponding to M
 
 ```bash
 > # the position here is the main directory of the program
-> cd demo/model1
+> cd demo
 > ls .
 config.toml model.txt
 ```
@@ -76,7 +78,7 @@ The configuration file `config.toml` serves as the configuration file for the ex
 
 ## Parameters
 
-For certain models, the algorithm may occasionally miss some roots. To reduce the likelihood of this occurring, you can increase the`nfine` parameter in [disp.hpp](./include/disp.hpp) to a larger number. While this adjustment can help ensure that fewer roots are missed, please be aware that it will result in longer running times. Especially for derivative-free inversion alogrithm, we suggest set a relatively large `nfine` if the program is used as the forwarding solver.
+For certain models, the algorithm may occasionally miss some roots. To reduce the likelihood of this occurring, you can increase the`nfine` parameter in [disp.hpp](./include/disp.hpp) to a larger number. While this adjustment can help ensure that fewer roots are missed, please be aware that it will result in longer running times. Especially for derivative-free inversion alogrithm that models are genereated randomly, e.g. MCMC, we suggest set a relatively large `nfine` if the program is used as the forwarding solver.
 
 ## References
 
