@@ -205,6 +205,7 @@ double Dispersion::search_mode(double f, int mode) {
 std::vector<double> Dispersion::search(double f, int num_mode,
                                        const std::vector<double> &samples) {
   std::function<double(double)> func = [&](double c) {
+    ++num_forward_;
     return sf_->evaluate(f, c);
   };
 

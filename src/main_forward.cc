@@ -28,7 +28,6 @@
 #include <chrono>
 #include <fmt/format.h>
 #include <fmt/ostream.h>
-#include <iostream>
 #include <string>
 #include <toml.hpp>
 #include <vector>
@@ -51,6 +50,8 @@ int main(int argc, char const *argv[]) {
   app.add_option("-o,--out", file_out, "filename of output");
   bool raw = false;
   app.add_flag("--raw", raw, "use the original algorithm");
+  bool count_nforward = false;
+  app.add_flag("--count_nforward", count_nforward, "count number of forward");
 
   CLI11_PARSE(app, argc, argv);
 
@@ -71,12 +72,14 @@ int main(int argc, char const *argv[]) {
   const auto fmax = toml::find<double>(dispersion, "fmax");
   const auto nf = toml::find<int>(dispersion, "nf");
   ArrayXd freqs = ArrayXd::LinSpaced(nf, fmin, fmax);
-  for (int i = 0; i < freqs.size(); ++i) {
+  ArrayXi count = ArrayXi::Zero(nf);
+  for (int i = 0; i < freqs.rows(); ++i) {
     std::vector<double> c;
     if (raw) {
       Dispersion disp(model, sh);
       auto samples = disp.get_samples(freqs[i]);
       c = disp.search(freqs(i), mode_max + 1, samples);
+      count(i) = disp.num_forward();
     } else {
       auto vs = model.col(3);
       auto ireq = find_required_nl(vs);
@@ -89,6 +92,7 @@ int main(int argc, char const *argv[]) {
         append_samples_with_roots(samples, c_pred);
         c = disp.search(freqs(i), mode_max + 1, samples);
         c_pred.insert(c_pred.end(), c.begin(), c.end());
+        count(i) += disp.num_forward();
       }
     }
     for (size_t m = 0; m < c.size(); ++m) {
@@ -96,6 +100,15 @@ int main(int argc, char const *argv[]) {
     }
   }
   out.close();
+
+  if (count_nforward) {
+    std::string file_out = "count.txt";
+    std::ofstream out(file_out);
+    for (int i = 0; i < freqs.rows(); ++i) {
+      fmt::print(out, "{:15.5f}{:15d}\n", freqs(i), count(i));
+    }
+    out.close();
+  }
 
   std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
   double elapsed =

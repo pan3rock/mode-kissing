@@ -19,6 +19,7 @@ public:
   ~Dispersion();
   std::vector<double> search(double f, int num_mode,
                              const std::vector<double> &samples);
+  int num_forward() { return num_forward_; }
   double search_mode(double f, int mode);
   std::vector<double> get_samples(double f);
   double approx(double f, double c);
@@ -39,6 +40,7 @@ private:
   std::unique_ptr<SecularFunction> sf_;
   double vs0_, vp0_, vs_min_, vs_max_, vs_hf_, rayv_;
   double dc_rough_;
+  int num_forward_ = 0;
 };
 
 #endif
